@@ -11,27 +11,42 @@ import SwiftUI
 
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
-
+    
+    var statusBarItem: NSStatusItem!
     var window: NSWindow!
-
+    var popover: NSPopover!
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        // Create the SwiftUI view that provides the window contents.
+
         let contentView = ContentView()
-
-        // Create the window and set the content view. 
-        window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: 480, height: 300),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
-            backing: .buffered, defer: false)
-        window.center()
-        window.setFrameAutosaveName("Main Window")
-        window.contentView = NSHostingView(rootView: contentView)
-        window.makeKeyAndOrderFront(nil)
+        
+        self.statusBarItem = NSStatusBar.system.statusItem(withLength: CGFloat(NSStatusItem.variableLength))
+        
+        if let button = self.statusBarItem.button {
+             button.image = NSImage(named: "Icon")
+        }
+        
+        constructMenu()
     }
+    
+    @objc func hoy(_ sender: Any?) {
+        let pasteboard = NSPasteboard.general
+        let formatter = DateFormatter()
+        
+        formatter.dateFormat = "yyyy/MM/dd"
+        
+        pasteboard.declareTypes([NSPasteboard.PasteboardType.string], owner: nil)
+        pasteboard.setString("#journal/" + formatter.string(from: Date()), forType: NSPasteboard.PasteboardType.string)
+    }
+    
+    func constructMenu() {
+      let menu = NSMenu()
 
-    func applicationWillTerminate(_ aNotification: Notification) {
-        // Insert code here to tear down your application
+      menu.addItem(NSMenuItem(title: "Hoy", action: #selector(AppDelegate.hoy(_:)), keyEquivalent: "H"))
+      menu.addItem(NSMenuItem.separator())
+      menu.addItem(NSMenuItem(title: "Cerrar", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+
+      statusBarItem.menu = menu
     }
 
 
